@@ -25,7 +25,7 @@ describe("pickRandomSquare function works", () => {
     //for 100 random moves, a number cannot be picked twice. (must always return true)
     for (let i=0; i < 100; i++) {
         test("randomMove is made", () => {
-            expect(player.pickRandomSquare()).toBe(true);
+            expect(player.pickRandomSquare()).not.toBe(false);
         })
     }
 });

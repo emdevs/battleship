@@ -1,6 +1,5 @@
 import Gameboard from "./Gameboard";
 
-
 const Player = (gameboard) => {
     let pickedSquares = [];
     let all_squares;
@@ -27,6 +26,7 @@ const Player = (gameboard) => {
 
     const pickSquare = (number) => {
         if (!pickedSquares.includes(number)) {
+            //can check if recieveAttack returns true or false (can set up popup notif);
             gameboard.recieveAttack(number);
             pickedSquares.push(number);
             return true;
@@ -36,11 +36,13 @@ const Player = (gameboard) => {
 
     const pickRandomSquare = () => {
         let number = all_squares.shift();
+        // console.log(number);
         
         if (!pickedSquares.includes(number)) {
             gameboard.recieveAttack(number);
             pickedSquares.push(number);
-            return true;
+            return number;
+            // return true;
         }
         return false;
     }

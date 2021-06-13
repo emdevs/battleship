@@ -140,19 +140,19 @@ describe("recieveAttack function works", () => {
     let gb = Gameboard(board_1);
 
     test("recieve attack hits ship", () => {
-        expect(gb.recieveAttack(31)).toEqual([]);
+        expect(gb.recieveAttack(31)).toEqual(true);
     });
 
     test("recieve attack misses", () => {
-        expect(gb.recieveAttack(10)).toEqual([10]);
+        expect(gb.recieveAttack(10)).toEqual(false);
     });
 
     test("recieve attack misses", () => {
-        expect(gb.recieveAttack(42)).toEqual([10, 42]);
+        expect(gb.recieveAttack(42)).toEqual(false);
     })
 
     test("recieve attack hits ship", () => {
-        expect(gb.recieveAttack(8)).toEqual([10, 42]);
+        expect(gb.recieveAttack(8)).toEqual(true);
     })
 });
 

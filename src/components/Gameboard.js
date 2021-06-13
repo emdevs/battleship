@@ -1,21 +1,11 @@
 import Ship from "./Ship"
+import {getCoordinates as getCoord} from "./Helpers"
 import {default_board, default_ships} from "./Defaults"
 
 const Gameboard = (layout=default_board, allShips=default_ships) => {
     let board = layout;
     let ships = allShips;
     let missedShots = [];
-
-    //convert integer into coordinates ex 0 = [0,0] , 10 = [1, 0], 44 = [4,4];
-    //from 0-99 (10x10 board)
-    const getCoord = (number) => {
-        if (number < 9) {
-            return [0, number];
-        } else {
-            let coord = number.toString().split("").map(Number);
-            return coord;
-        }
-    };
 
     const placeShip = (shipName, coords, board=board) => {
         //ensure smaller coordinate is always first. 
@@ -58,15 +48,16 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
 
         if (square === "") {
             missedShots.push(number);
+            return false;
         } else {
             //there is a ship there, hit it. 
             for (var shipName in ships) {
                 if (shipName === square) {
                     ships[shipName].hit(number);
                 }
+                return true;
             }
         }
-        return missedShots;
     }
 
     const allSunk = () => {

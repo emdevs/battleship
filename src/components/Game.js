@@ -1,7 +1,9 @@
 //main game loop
+import React, { useState } from "react";
+import {default_board, layout_2} from "./Defaults";
 
-import React from "react";
-import {layout_2} from "./Defaults";
+import { getCoordinates as getCoord} from "./Helpers";
+
 import Ship from "./Ship";
 import Gameboard from "./Gameboard";
 import Player from "./Player";
@@ -16,93 +18,117 @@ const Game = () => {
     //create two players. one will be pickSquare, other random squares (vs computer);
     
     let p1 = Player(p2_gameboard);
-    let ai = Player(p1_gameboard);
+    let p2 = Player(p1_gameboard);
 
-    const startRound = (number) => {
-        console.log(number);
-        p1.pickSquare(number);
-        // p2.pickRandomSquare();
+    //why not game playerchoice then random choice (evaluate board state before bot)
+    //instead of start round. 
 
+    //gameend
+
+    const checkState = () => {
         if (p1_gameboard.allSunk() === true) {
+            //return true false or nothing. (true player wins, false comp wins, nothing is nothing)
+            //use in display to trigger render of alert component?
             console.log("You lost!");
         } else if (p2_gameboard.allSunk() === true) {
             console.log("You win!");
         }
     }
-    return { startRound, p1_gameboard, p2_gameboard };
+
+    //NEED TO CALL THESE METHODS INDIVIDUALLY IN DISPLAY. 
+    const playerChoice = (number) => {
+        console.log(number)
+        return p1.pickSquare(number);
+    };
+
+    const computerChoice = () => p2.pickRandomSquare();
+
+    return { p1_gameboard, p2_gameboard, playerChoice, computerChoice, checkState };
 };
 
 
 const Display = (props) => {
+    //hides computer's board underneath
+    let [b1Mask, setB1Mask] = useState(default_board);
+    //reveals what squares opponent has picked. 
+    let [b2Mask, setB2Mask] = useState(default_board);
 
-    // attach event listener to each square, onClick should be a player.pickSquare
-    //get boards passed in as prop maybe.
     let { game } = props;
     
-
-    // console.log(game);
     let board_1 = game.p1_gameboard.board;
-    // console.log(board_1);
     let board_2 = game.p2_gameboard.board;
     
-    const clickedSquare = (e) => {
-        game.startRound(e.target.id);
-
-        //get the
-
-        // let square = document.getElementByID(e.target.id);
-        // square.classList.remove("hidden");
-
-        // remove hidden class if there is one
-        //each onlcik should start a new round. evaluate square, then call ai move. 
+    const updateMask = (mask, setMask, position, value) => {
+        let temp = JSON.parse(JSON.stringify(mask));
+        let coords = getCoord(position);
+        temp[coords[0]][coords[1]] = value;
+        setMask(temp);
     };
 
-    //convert to arr (input if hidden or not (different styling, and click events))
+    const clickedSquare = (e) => {
+        let number = e.target.id;
 
+        //if player choice is valid and executed
+        if (game.playerChoice(number)) {
+            let random_choice = game.computerChoice();
 
-    //draw board hidden needs to be grey, reveal color (blue or red) based on hit or miss
-    //enemy board will always be visibile. should have visual cue to see where 
-    const drawBoard = (board, hidden) => {
-        let flat_board = board.flat(Infinity);
+            updateMask(b1Mask, setB1Mask, number, "u");
+            updateMask(b2Mask, setB2Mask, random_choice, "u");
 
-        if (hidden) {
-            return (
-                <React.Fragment>
-                    {
-                    flat_board.map((v, i) => {
-                        return ( 
-                            <div 
-                            id={i}
-                            key={i}
-                            className={(v === "")? `blank hidden` : `ship hidden`}
-                            onClick={(e) => clickedSquare(e)}
-                            />
-                        )
-                    })
-                    }
-                </React.Fragment>
-            )
+            //check for win here
+            game.checkState();
         } else {
-            return (
-                <React.Fragment>
-                    {
-                    flat_board.map((v, i) => {
-                        return <div key={i} className={(v === "")? "blank" : "ship"}/>
-                    })
-                    }
-                </React.Fragment>
-            )
+            console.log("You already picked that square!")
         }
+    };
+
+    //cover is whether or not the mask should hide board underneath or not. 
+    const drawBoardMask = (board, cover) => {
+        let [toggled, untoggled] = (cover)? ["unhidden", "hidden"] : ["shaded", ""];
+
+        let flat_board = board.flat(Infinity);
+        return(
+            <div className="board-mask">
+                {
+                flat_board.map((v, i) => {
+                    return(
+                        <div 
+                        id={(cover)? i : null}
+                        key={i}
+                        className={(v === "")? untoggled : toggled }
+                        onClick={(cover)? (e) => clickedSquare(e) : null}
+                        />
+                    );
+                })
+                }
+            </div>
+        )
     }
 
-    //needs information about gameboards.
+    const drawBoard = (board) => {
+        let flat_board = board.flat(Infinity);
+
+        return (
+            <div className="gameboard">
+                {
+                flat_board.map((v, i) => {
+                    return <div key={i} className={(v === "")? "blank" : "ship"}/>
+                })
+                }
+            </div>
+        )
+    }
+
     return (
         <div id="game">
-            <div className="gameboard">
-                { drawBoard(board_1, true) }
+            <div className="board-container">
+                {drawBoardMask(b1Mask, true)}
+                {drawBoard(board_1)}
             </div>
-            <div className="gameboard">
-                { drawBoard(board_2, false) }
+            
+            <div className="board-container">
+                {drawBoardMask(b2Mask, false)}
+                {drawBoard(board_2)}
             </div>
         </div>
     )
