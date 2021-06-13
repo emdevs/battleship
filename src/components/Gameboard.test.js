@@ -26,6 +26,19 @@ const board_1 = [
     ["","","","","","","","","",""]
 ];
 
+const board_2 = [
+    ["ds_1","ds_1","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""],
+    ["","","","","","","","","",""]
+];
+
 describe("placeShip function works", () => {
     let gb = Gameboard();
 
@@ -82,8 +95,47 @@ describe("placeShip function works", () => {
             ]
         );
     });
+
+    test("Cannot place ship if space occupied", () => {
+        expect(gb.placeShip("two", [6, 7], board_1)
+        ).toEqual(
+            [
+                ["","","","","","","three","three","three",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","one","","","","","","","",""],
+                ["","","","","","","","","two",""],
+                ["","","","","","","","","two",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""]
+            ]
+        );
+    });
+
+    test("Cannot place ship if space occupied", () => {
+        expect(gb.placeShip("four", [1, 4], board_2)
+        ).toEqual(
+            [
+                ["ds_1","ds_1","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""],
+                ["","","","","","","","","",""]
+            ]
+        );
+    });
 });
 
+
+
+//Test if recieveAttack correctly alters missedShots array
 describe("recieveAttack function works", () => {
     let gb = Gameboard(board_1);
 
@@ -101,5 +153,35 @@ describe("recieveAttack function works", () => {
 
     test("recieve attack hits ship", () => {
         expect(gb.recieveAttack(8)).toEqual([10, 42]);
+    })
+});
+
+//test if all ships sunk correctly. 
+describe("allSunk function works correctly", () => {
+    let gb = Gameboard(board_2, {ds_1: Ship(2)});
+    
+    test("not all ships sunk", () => {
+        expect(gb.allSunk()).toEqual(false);
+    });
+
+    test("all ships sunk", () => {
+        gb.recieveAttack(0);
+        gb.recieveAttack(1);
+
+        expect(gb.allSunk()).toEqual(true);
+    });
+
+    let gb2 = Gameboard(board_1, {one: Ship(1), two: Ship(2), three: Ship(3)});
+
+    test("not all ships sunk", () => {
+        expect(gb2.allSunk()).toEqual(false);
+    })
+
+    test("not all ships sunk", () => {
+        gb2.recieveAttack(6);
+        gb2.recieveAttack(7);
+        gb2.recieveAttack(8);
+
+        expect(gb2.allSunk()).toEqual(false);
     })
 });
