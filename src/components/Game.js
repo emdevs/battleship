@@ -1,5 +1,5 @@
 //main game loop
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {default_board, layout_2} from "./Defaults";
 
 import { getCoordinates as getCoord} from "./Helpers";
@@ -20,11 +20,6 @@ const Game = () => {
     let p1 = Player(p2_gameboard);
     let p2 = Player(p1_gameboard);
 
-    //why not game playerchoice then random choice (evaluate board state before bot)
-    //instead of start round. 
-
-    //gameend
-
     const checkState = () => {
         if (p1_gameboard.allSunk() === true) {
             //return true false or nothing. (true player wins, false comp wins, nothing is nothing)
@@ -35,7 +30,6 @@ const Game = () => {
         }
     }
 
-    //NEED TO CALL THESE METHODS INDIVIDUALLY IN DISPLAY. 
     const playerChoice = (number) => {
         console.log(number)
         return p1.pickSquare(number);
@@ -46,17 +40,20 @@ const Game = () => {
     return { p1_gameboard, p2_gameboard, playerChoice, computerChoice, checkState };
 };
 
+//display for gameboards;
 
 const Display = (props) => {
     //hides computer's board underneath
     let [b1Mask, setB1Mask] = useState(default_board);
     //reveals what squares opponent has picked. 
     let [b2Mask, setB2Mask] = useState(default_board);
+    let [endGame, setEndGame] = useState(false);
 
     let { game } = props;
     
     let board_1 = game.p1_gameboard.board;
     let board_2 = game.p2_gameboard.board;
+    
     
     const updateMask = (mask, setMask, position, value) => {
         let temp = JSON.parse(JSON.stringify(mask));
@@ -65,21 +62,33 @@ const Display = (props) => {
         setMask(temp);
     };
 
+    //after player makes move (that changes board mask)
+    useEffect(() => {
+        if (!endGame){
+            let random_choice = game.computerChoice();
+            updateMask(b2Mask, setB2Mask, random_choice, "u");
+
+            if (game.p1_gameboard.allSunk()) {
+                console.log("You lost");
+                setEndGame(true);
+            }
+        }
+    }, [b1Mask]);
+
     const clickedSquare = (e) => {
         let number = e.target.id;
 
-        //if player choice is valid and executed
-        if (game.playerChoice(number)) {
-            let random_choice = game.computerChoice();
-
-            updateMask(b1Mask, setB1Mask, number, "u");
-            updateMask(b2Mask, setB2Mask, random_choice, "u");
-
-            //check for win here
-            game.checkState();
-        } else {
-            console.log("You already picked that square!")
-        }
+        if (!endGame) {
+            if (game.playerChoice(number)) {
+                updateMask(b1Mask, setB1Mask, number, "u");
+                if (game.p2_gameboard.allSunk()) {
+                    console.log("You won!");
+                    setEndGame(true);
+                }
+            } else {
+                console.log("You already picked that square!")
+            }
+        };
     };
 
     //cover is whether or not the mask should hide board underneath or not. 
