@@ -1,17 +1,7 @@
 import Gameboard from "./Gameboard";
 import Ship from "./Ship";
-const empty_board = [
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""],
-    ["","","","","","","","","",""]
-];
+import {default_board} from "./Defaults";
+const empty_board = default_board;
 
 const board_1 = [
     ["","","","","","","three","three","three",""],
@@ -40,31 +30,17 @@ const board_2 = [
 ];
 
 describe("placeShip function works", () => {
+    //will automatically use default (empty) board
     let gb = Gameboard();
 
-    test("Place ship on empty board", () => {
-        expect(gb.placeShip("two", [18, 28], empty_board)
-        ).toEqual(
-            [
-                ["","","","","","","","","",""],
-                ["","","","","","","","","two",""],
-                ["","","","","","","","","two",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""]
-            ]
-        );
+    test("New ship placed", () => {
+        expect(gb.placeShip("three", [0,0], 3, "horizontal")).toBe(true);
     });
 
-    test("Place ship on empty board", () => {
-        expect(gb.placeShip("four", [0, 3], empty_board)
-        ).toEqual(
+    test("Board changed", () => {
+        expect(gb.getBoard()).toEqual(
             [
-                ["four","four","four","four","","","","","",""],
+                ["three","three","three","","","","","","",""],
                 ["","","","","","","","","",""],
                 ["","","","","","","","","",""],
                 ["","","","","","","","","",""],
@@ -75,64 +51,37 @@ describe("placeShip function works", () => {
                 ["","","","","","","","","",""],
                 ["","","","","","","","","",""]
             ]
-        );
+        )
     });
 
-    test("Place ship on empty board", () => {
-        expect(gb.placeShip("three", [81, 61], empty_board)
-        ).toEqual(
-            [
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","three","","","","","","","",""],
-                ["","three","","","","","","","",""],
-                ["","three","","","","","","","",""],
-                ["","","","","","","","","",""]
-            ]
-        );
+    test("Space occupied, ship not placed", () => {
+        expect(gb.placeShip("two", [0,0], 2, "horizontal")).toBe(false);
+    })
+
+    test("Space occupied, ship not placed", () => {
+        expect(gb.placeShip("four", [0,2], 4, "vertical")).toBe(false);
+    })
+
+    test("New ship placed", () => {
+        expect(gb.placeShip("three", [4,0], 3, "vertical")).toBe(true);
     });
 
-    test("Cannot place ship if space occupied", () => {
-        expect(gb.placeShip("two", [6, 7], board_1)
-        ).toEqual(
-            [
-                ["","","","","","","three","three","three",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","one","","","","","","","",""],
-                ["","","","","","","","","two",""],
-                ["","","","","","","","","two",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""]
-            ]
-        );
+    test("New ship placed", () => {
+        expect(gb.placeShip("six", [6,2], 6, "horizontal")).toBe(true);
     });
 
-    test("Cannot place ship if space occupied", () => {
-        expect(gb.placeShip("four", [1, 4], board_2)
-        ).toEqual(
-            [
-                ["ds_1","ds_1","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""],
-                ["","","","","","","","","",""]
-            ]
-        );
-    });
+    test("Out of bounds, ship not placed", () => {
+        expect(gb.placeShip("three", [9,0], 3, "vertical")).toBe(false);
+    })
+
+    test("Out of bounds, ship not placed", () => {
+        expect(gb.placeShip("three", [0,9], 3, "horizontal")).toBe(false);
+    })
+
+    test("Out of bounds, ship not placed", () => {
+        expect(gb.placeShip("three", [8,9], 3, "horizontal")).toBe(false);
+    })
 });
-
 
 
 //Test if recieveAttack correctly alters missedShots array
@@ -185,3 +134,5 @@ describe("allSunk function works correctly", () => {
         expect(gb2.allSunk()).toEqual(false);
     })
 });
+
+

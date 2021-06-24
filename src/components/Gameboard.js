@@ -7,41 +7,37 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
     let ships = allShips;
     let missedShots = [];
 
-    const placeShip = (shipName, coords, board=board) => {
-        //ensure smaller coordinate is always first. 
-        let coordinates = (coords[0] > coords[1])? [coords[1], coords[0]] : coords;
+    const getBoard = () => board;
+
+    const placeShip = (name, start, length, orientation) => {
         let boardCopy = JSON.parse(JSON.stringify(board));
-        let start = getCoord(coordinates[0]);
-        let end = getCoord(coordinates[1]);
+        //get x and y numbers from start coordinate
+        let [y, x] = start;
 
-        //make sure that it cant be placed out of the board, or cannot overlap with other ships. 
-
-        //this presumes both shipName is valid, and coords .
-
-        if (start[0] == end[0]) {
-            //ship is horizontal
-            for (let i=start[1]; i < end[1] + 1; i++) {
-                if (boardCopy[start[0]][i] === "") {
-                    boardCopy[start[0]][i] = shipName;
+        if (orientation === "horizontal") {
+            for (let i=x; i < x+length; i++) {
+                if (board[y][i] === "") {
+                    boardCopy[y][i] = name;
                 } else {
-                    return board;
+                    return false;
                 }
             }
         } else {
-            //ship is vertical
-            for (let i=start[0]; i < end[0] + 1; i++) {
-                if (boardCopy[i][start[1]] === "") {
-                    boardCopy[i][start[1]] = shipName;
+            if (y+length > 9) { return false };
+
+            for (let i=y; i < y+length; i++) {
+                if (board[i][x] === "") {
+                    boardCopy[i][x] = name;
                 } else {
-                    return board;
+                    return false;
                 }
             }
         }
-        //externally set board to boardCopy
         board = boardCopy;
-        return boardCopy;
-    }
+        return true;
+    };
 
+    //change recieve attack later to coordinates [0,0]
     const recieveAttack = (number) => {
         let coord = getCoord(number);
         let square = board[coord[0]][coord[1]];
@@ -70,7 +66,8 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
         return true;
     };
 
-    return { board, placeShip, recieveAttack, allSunk };
+    return { board, getBoard, placeShip, recieveAttack, allSunk };
 };
 
 export default Gameboard;
+
