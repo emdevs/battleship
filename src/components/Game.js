@@ -1,6 +1,6 @@
 //main game loop
 import React, { useState, useEffect } from "react";
-import {default_board, layout_2} from "./Defaults";
+import {default_board, layout_2, default_ships} from "./Defaults";
 
 import { getCoordinates as getCoord} from "./Helpers";
 
@@ -8,13 +8,20 @@ import Ship from "./Ship";
 import Gameboard from "./Gameboard";
 import Player from "./Player";
 
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+
+
+import Board from "./Board";
+import ShipProp from "./ShipProp";
 
 //later game should take in specific layout i think
 const Game = () => {
     //create players and gameboards;
     //create two gameboards.
     let p1_gameboard = Gameboard(layout_2, {"ship": Ship(3)});
-    let p2_gameboard = Gameboard(layout_2, {"ship": Ship(3)});
+    //we are setting up p2_gameboard, which makes us player 2. change this later
+    let p2_gameboard = Gameboard();
     //create two players. one will be pickSquare, other random squares (vs computer);
     
     let p1 = Player(p2_gameboard);
@@ -44,17 +51,22 @@ const Game = () => {
 
 const Display = (props) => {
     //hides computer's board underneath
+
+    let { game } = props;
+
     let [b1Mask, setB1Mask] = useState(default_board);
     //reveals what squares opponent has picked. 
     let [b2Mask, setB2Mask] = useState(default_board);
     let [endGame, setEndGame] = useState(false);
 
-    let { game } = props;
+
+    //ships to be setup with shipProp.
+    //if ships key length is 0, then popup menu to ask to start vs reset board
+    let [ships, setShips] = useState(default_ships);
     
-    let board_1 = game.p1_gameboard.board;
-    let board_2 = game.p2_gameboard.board;
-    
-    
+    let board_1 = game.p1_gameboard.getBoard();
+    let [board_2, setBoard_2] = useState(game.p2_gameboard.getBoard());
+
     const updateMask = (mask, setMask, position, value) => {
         let temp = JSON.parse(JSON.stringify(mask));
         let coords = getCoord(position);
@@ -128,20 +140,71 @@ const Display = (props) => {
         )
     }
 
+    //square that will contain all moveable ship pieces
+    const drawShipContainer = (ships) => {
+
+        return (
+            <div id="ship-container">
+                {
+                Object.keys(ships).map((key, i) => {
+                    return (
+                    <ShipProp 
+                    key={key}
+                    length={ships[key].length}
+                    name={key}
+                    />
+                    )
+                })
+                }
+            </div>
+        )
+    };
+
+    const updateShipContainer = (shipName) => {
+        console.log(shipName);
+        setShips(Object.keys(ships)
+        .filter(key => key !== shipName)
+        .reduce((obj, key) => {
+        obj[key] = ships[key];
+        return obj;
+        }, {}));
+    }
+
+    //toUpdate Board for start of game (placing ships. )
+    //will update the display of board as well as ship container. 
+    function updateBoardDisplay(gameboard, setBoard) {
+        return ((info) => {
+            if (gameboard.placeShip(info.name, info.position, info.length, info.orientation)) {
+                setBoard(gameboard.getBoard());
+                updateShipContainer(info.name);
+            }
+        })
+    }
+
     return (
-        <div id="game">
-            <div className="board-container">
-                {drawBoardMask(b1Mask, true)}
-                {drawBoard(board_1)}
+        <DndProvider backend={HTML5Backend}>
+            <div id="game">
+                {drawShipContainer(ships)}
+                <Board 
+                board={board_2}
+                update={updateBoardDisplay(game.p2_gameboard, setBoard_2)}
+                />
+                
             </div>
-            
-            <div className="board-container">
-                {drawBoardMask(b2Mask, false)}
-                {drawBoard(board_2)}
-            </div>
-        </div>
+        </DndProvider>
     )
 };
 
-
 export { Game, Display };
+
+{/* <div className="board-container">
+                    {drawBoardMask(b1Mask, true)}
+                    {drawBoard(board_1)}
+                </div>
+                
+                <div className="board-container">
+                    {drawBoardMask(b2Mask, false)}
+                    {drawBoard(board_2)}
+                </div>
+ */}
+

@@ -23,7 +23,7 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
                 }
             }
         } else {
-            if (y+length > 9) { return false };
+            if (y+length > 10) { return false };
 
             for (let i=y; i < y+length; i++) {
                 if (board[i][x] === "") {
@@ -66,6 +66,7 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
         return true;
     };
 
+    //check can safely remove board
     return { board, getBoard, placeShip, recieveAttack, allSunk };
 };
 

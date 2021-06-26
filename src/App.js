@@ -3,7 +3,6 @@ import { Game, Display } from "./components/Game";
 
 
 const App = (props) => {
-
   //check win state here. if win, then render component that displays message who won. 
   //component will render message and button to restart game. 
 

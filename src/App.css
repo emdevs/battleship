@@ -3,9 +3,36 @@
 }
 
 #game {
-  display: flex;
-  justify-content: space-evenly;
+  display: grid;
+  grid-template: auto / 1fr 1fr;
+  /* display: flex;
+  justify-content: space-evenly; */
 }
+
+#ship-container {
+  border: 1px solid;
+  width: 100%;
+  min-width: 500px;
+  min-height: 500px;
+  background-color: purple;
+}
+
+/* #drop-zone {
+  width: 100%;
+  min-width: 500px;
+  min-height: 500px;
+  background-color: green;
+} */
+
+.ship-prop {
+  width: 200px;
+  min-height: 100px;
+  margin: 2rem;
+  background-color: beige;
+
+}
+
+
 
 .board-container {  
 position: relative;}
@@ -13,6 +40,8 @@ position: relative;}
 .gameboard,
 .board-mask {
   /* margin: 2rem; */
+  align-self: start;
+  /* border: 1px red solid; */
   display: grid;
   grid-template: auto / repeat(10, 1fr);
   max-width: 550px;
@@ -21,8 +50,12 @@ position: relative;}
 .gameboard div,
 .board-mask div {
   border: 1px solid;
-  min-width: 50px;
-  min-height: 50px;
+  width: 50px;
+  height: 50px;
+  /* min-width: 50px;
+  max-width: 50px;
+  max-height: 50px;
+  min-height: 50px; */
 }
 
 .board-mask {

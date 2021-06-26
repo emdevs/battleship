@@ -1,7 +1,5 @@
 import Gameboard from "./Gameboard";
 import Ship from "./Ship";
-import {default_board} from "./Defaults";
-const empty_board = default_board;
 
 const board_1 = [
     ["","","","","","","three","three","three",""],
@@ -80,6 +78,10 @@ describe("placeShip function works", () => {
 
     test("Out of bounds, ship not placed", () => {
         expect(gb.placeShip("three", [8,9], 3, "horizontal")).toBe(false);
+    })
+    
+    test("New ship placed", () => {
+        expect(gb.placeShip("three", [7,0], 3, "vertical")).toBe(true);
     })
 });
 
