@@ -1,5 +1,4 @@
-import Gameboard from "./Gameboard";
-
+//player takes in enemy gameboard, so that it can attack it. 
 const Player = (gameboard) => {
     let pickedSquares = [];
     let all_squares;
@@ -36,13 +35,11 @@ const Player = (gameboard) => {
 
     const pickRandomSquare = () => {
         let number = all_squares.shift();
-        // console.log(number);
-        
+
         if (!pickedSquares.includes(number)) {
             gameboard.recieveAttack(number);
             pickedSquares.push(number);
             return number;
-            // return true;
         }
         return false;
     }

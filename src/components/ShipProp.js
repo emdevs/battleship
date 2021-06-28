@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {useDrag} from "react-dnd";
 import ItemTypes from "../utils/items";
 
+//currently shipProp can be grabbed from any square, which may not align with cursor. 
 const ShipProp = (props) => {
     const {length, name} = props;
     
@@ -33,10 +34,14 @@ const ShipProp = (props) => {
         }
         style={{
             opacity: isDragging ? 0.5 : 1,
-            fontWeight: 'bold',
+            flexDirection: (orientation === "vertical")? "column" : "row",
             cursor: 'move',
         }}
-        >{name}{orientation}</div>
+        >
+            {
+                [...Array(length)].map((_, index) => <div key={index}/>)
+            }
+        </div>
     )
 };
 

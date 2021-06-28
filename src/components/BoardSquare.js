@@ -1,11 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useDrop } from "react-dnd";
 import ItemTypes from "../utils/items";
 
 const BoardSquare = (props) => {
-    const {position, occupied, setShip} = props;
+    const {position, occupied, setShip, setShadow} = props;
 
-    //maybe its becasue useDrop hook is never update with new ship setShip values. 
     const [{ isOver }, drop] = useDrop(
         () => ({
             accept: ItemTypes.SHIP,
@@ -13,24 +12,23 @@ const BoardSquare = (props) => {
                 console.log(item.name);
                 setShip({...item, position});
             },
+            hover: (item, monitor) => {
+                //add a method here?
+            },
             collect: (monitor) => ({
             isOver: !!monitor.isOver()
             })
     }))
-    //update whenever item changes?
+
 
     return (
         <div
         ref={drop}
         style={{
-            backgroundColor: occupied? "pink" : "grey",
+            backgroundColor: occupied? "pink" : "rgb(79, 150, 231)",
             border: isOver ? "2px red solid" : "2px green solid",
         }}
         />
     )
 };
 export default BoardSquare;
-
-    //investigate implementing canDrop
-    //should color the square sadjacent o it based on length
-    //pass in func that highlights nearby squares??? how????

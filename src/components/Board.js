@@ -22,7 +22,7 @@ const Board = (props) => {
                                 key={[y,x]}
                                 position={[y,x]}
                                 occupied={(value === "")? false : true}
-                                setShip={setCurrentShip}
+                                setShip={setCurrentShip}   
                                 />
                             )
                         })

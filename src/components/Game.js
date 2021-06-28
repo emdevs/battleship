@@ -14,11 +14,13 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 
 import Board from "./Board";
 import ShipProp from "./ShipProp";
+import ShipContainer from "./ShipContainer";
+import BoardMask from "./BoardMask";
+import Button from "./Button";
 
-//later game should take in specific layout i think
+//Game sets up gameboards for player and compter, as well as checkState method. 
 const Game = () => {
-    //create players and gameboards;
-    //create two gameboards.
+    //make computer board randomly select from randomly generated templates. 
     let p1_gameboard = Gameboard(layout_2, {"ship": Ship(3)});
     //we are setting up p2_gameboard, which makes us player 2. change this later
     let p2_gameboard = Gameboard();
@@ -47,25 +49,27 @@ const Game = () => {
     return { p1_gameboard, p2_gameboard, playerChoice, computerChoice, checkState };
 };
 
-//display for gameboards;
-
+//Display for Battleship Game. 
 const Display = (props) => {
-    //hides computer's board underneath
-
     let { game } = props;
 
-    let [b1Mask, setB1Mask] = useState(default_board);
+    let computerBoard = game.p1_gameboard.getBoard();
+    let [playerBoard, setPlayerBoard] = useState(game.p2_gameboard.getBoard());
+
+    //hides computer's board underneath
+    let [computerMask, setComputerMask] = useState(default_board);
     //reveals what squares opponent has picked. 
-    let [b2Mask, setB2Mask] = useState(default_board);
+    let [playerMask, setPlayerMask] = useState(default_board);
+
+    //is the game ready? (player 2's gameboard set. )
+    let [gameReady, setGameReady] = useState(false);
     let [endGame, setEndGame] = useState(false);
 
-
     //ships to be setup with shipProp.
-    //if ships key length is 0, then popup menu to ask to start vs reset board
     let [ships, setShips] = useState(default_ships);
     
-    let board_1 = game.p1_gameboard.getBoard();
-    let [board_2, setBoard_2] = useState(game.p2_gameboard.getBoard());
+    
+    //METHODS
 
     const updateMask = (mask, setMask, position, value) => {
         let temp = JSON.parse(JSON.stringify(mask));
@@ -78,21 +82,21 @@ const Display = (props) => {
     useEffect(() => {
         if (!endGame){
             let random_choice = game.computerChoice();
-            updateMask(b2Mask, setB2Mask, random_choice, "u");
+            updateMask(playerMask, setPlayerMask, random_choice, "u");
 
             if (game.p1_gameboard.allSunk()) {
                 console.log("You lost");
                 setEndGame(true);
             }
         }
-    }, [b1Mask]);
+    }, [computerMask]);
 
     const clickedSquare = (e) => {
         let number = e.target.id;
 
         if (!endGame) {
             if (game.playerChoice(number)) {
-                updateMask(b1Mask, setB1Mask, number, "u");
+                updateMask(computerMask, setComputerMask, number, "u");
                 if (game.p2_gameboard.allSunk()) {
                     console.log("You won!");
                     setEndGame(true);
@@ -101,63 +105,6 @@ const Display = (props) => {
                 console.log("You already picked that square!")
             }
         };
-    };
-
-    //cover is whether or not the mask should hide board underneath or not. 
-    const drawBoardMask = (board, cover) => {
-        let [toggled, untoggled] = (cover)? ["unhidden", "hidden"] : ["shaded", ""];
-
-        let flat_board = board.flat(Infinity);
-        return(
-            <div className="board-mask">
-                {
-                flat_board.map((v, i) => {
-                    return(
-                        <div 
-                        id={(cover)? i : null}
-                        key={i}
-                        className={(v === "")? untoggled : toggled }
-                        onClick={(cover)? (e) => clickedSquare(e) : null}
-                        />
-                    );
-                })
-                }
-            </div>
-        )
-    }
-
-    const drawBoard = (board) => {
-        let flat_board = board.flat(Infinity);
-
-        return (
-            <div className="gameboard">
-                {
-                flat_board.map((v, i) => {
-                    return <div key={i} className={(v === "")? "blank" : "ship"}/>
-                })
-                }
-            </div>
-        )
-    }
-
-    //square that will contain all moveable ship pieces
-    const drawShipContainer = (ships) => {
-
-        return (
-            <div id="ship-container">
-                {
-                Object.keys(ships).map((key, i) => {
-                    return (
-                    <ShipProp 
-                    key={key}
-                    length={ships[key].length}
-                    name={key}
-                    />
-                    )
-                })
-                }
-            </div>
-        )
     };
 
     const updateShipContainer = (shipName) => {
@@ -181,15 +128,45 @@ const Display = (props) => {
         })
     }
 
+    //reset ship container and board.
+    function resetAll(setBoard, setShips) {
+        return (()=> {
+            //needs to also reset gameboard (TEmp fix)
+            game.p2_gameboard = Gameboard();
+            setBoard(default_board);
+            setShips(default_ships);
+        })
+    }
+
     return (
         <DndProvider backend={HTML5Backend}>
+            <Button name="Reset" fn={resetAll(setPlayerBoard, setShips)} visible={!gameReady}/>
+            <Button name="Start Game" fn={() => setGameReady(true)} visible={!gameReady && Object.keys(ships).length === 0}/>
+            
+
             <div id="game">
-                {drawShipContainer(ships)}
-                <Board 
-                board={board_2}
-                update={updateBoardDisplay(game.p2_gameboard, setBoard_2)}
-                />
-                
+                {(gameReady)? 
+                <div className="board-container">
+                    <BoardMask board={computerMask} cover={true} clickFn={clickedSquare}/>
+                    <Board board={computerBoard}/>
+                </div> :
+
+                <ShipContainer ships={ships}/>
+                }
+
+                <div className="board-container">
+                    {gameReady &&
+                    <BoardMask 
+                    board={playerMask}
+                    cover={false}
+                    clickFn={clickedSquare}
+                    />
+                    }
+                    <Board 
+                    board={playerBoard}
+                    update={updateBoardDisplay(game.p2_gameboard, setPlayerBoard)}
+                    />
+                </div>
             </div>
         </DndProvider>
     )
@@ -197,14 +174,17 @@ const Display = (props) => {
 
 export { Game, Display };
 
+//seperate board container? 
+
+
 {/* <div className="board-container">
-                    {drawBoardMask(b1Mask, true)}
-                    {drawBoard(board_1)}
+                    {drawBoardMask(computerMask, true)}
+                    {drawBoard(computerBoard)}
                 </div>
                 
                 <div className="board-container">
-                    {drawBoardMask(b2Mask, false)}
-                    {drawBoard(board_2)}
+                    {drawBoardMask(playerMask, false)}
+                    {drawBoard(playerBoard)}
                 </div>
  */}
 
