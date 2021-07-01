@@ -102,8 +102,15 @@ const Display = (props) => {
     //will update the display of board as well as ship container. 
     function updateBoardDisplay(gameboard, setBoard) {
         return ((info) => {
-            if (gameboard.placeShip(info.name, info.position, info.length, info.orientation)) {
+            let [y, x] = info.position;
+
+            let start = (info.orientation === "horizontal") ?
+            [y, x-info.squareIndex] :
+            [y-info.squareIndex, x];
+
+            if (gameboard.placeShip(info.name, start, info.length, info.orientation)) {
                 setBoard(gameboard.getBoard());
+                console.log(info.name);
                 updateShipContainer(info.name);
             }
         })

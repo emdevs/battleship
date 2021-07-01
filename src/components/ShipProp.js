@@ -2,23 +2,24 @@ import React, {useState} from "react";
 import {useDrag} from "react-dnd";
 import ItemTypes from "../utils/items";
 
-//currently shipProp can be grabbed from any square, which may not align with cursor. 
 const ShipProp = (props) => {
     const {length, name} = props;
     
     let [orientation, setOrientation] = useState("horizontal");
+    let [squareIndex, setSquareIndex] = useState(0);
 
     const [{isDragging}, drag] = useDrag(() => ({
         type: ItemTypes.SHIP,
         item: {
                 name: name,
                 length: length,
-                orientation: orientation
+                orientation: orientation,
+                squareIndex: squareIndex
             },
         collect: monitor => ({
             isDragging: !!monitor.isDragging(),
         }),
-    }), [orientation])
+    }), [orientation, squareIndex])
 
     return (
         <div 
@@ -38,7 +39,17 @@ const ShipProp = (props) => {
         }}
         >
             {
-                [...Array(length)].map((_, index) => <div key={index} style={{display: (orientation === "vertical")? "block" : "inline-block"}}/>)
+                [...Array(length)].map((_, index) => {
+                    return(
+                    <div 
+                    key={index}
+                    style={
+                        {display: (orientation === "vertical")? "block" : "inline-block"}
+                    }
+                    onMouseDown={() => setSquareIndex(index)}
+                    />
+                    )
+                })
             }
         </div>
     )

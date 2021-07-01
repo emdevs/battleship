@@ -3,21 +3,24 @@ import { useDrop } from "react-dnd";
 import ItemTypes from "../utils/items";
 
 const BoardSquare = (props) => {
-    const {position, occupied, setShip, setShadow} = props;
+    const {position, occupied, setShip} = props;
 
     const [{ isOver }, drop] = useDrop(
         () => ({
             accept: ItemTypes.SHIP,
             drop: (item, monitor) => {
                 console.log(item.name);
+                // updateBoard({...item, position});
                 setShip({...item, position});
             },
             hover: (item, monitor) => {
-                //add a method here?
-            },
-            collect: (monitor) => ({
-            isOver: !!monitor.isOver()
-            })
+                // console.log(item.squareIndex);
+                //add a method here? for ship shadow? (need current board square, and item.length and item.squareIndex AND direction
+            }
+            //maybe use canDrop later
+            // collect: (monitor) => ({
+            // isOver: !!monitor.isOver()
+            // })
     }))
 
 
@@ -26,7 +29,7 @@ const BoardSquare = (props) => {
         ref={drop}
         style={{
             backgroundColor: occupied? "pink" : "rgb(79, 150, 231)",
-            border: isOver ? "1px red solid" : "1px green solid",
+            border: false ? "1px red solid" : "1px green solid",
         }}
         />
     )
