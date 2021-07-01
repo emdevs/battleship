@@ -26,7 +26,7 @@ const BoardSquare = (props) => {
         ref={drop}
         style={{
             backgroundColor: occupied? "pink" : "rgb(79, 150, 231)",
-            border: isOver ? "2px red solid" : "2px green solid",
+            border: isOver ? "1px red solid" : "1px green solid",
         }}
         />
     )

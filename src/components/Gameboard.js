@@ -8,6 +8,7 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
     let missedShots = [];
 
     const getBoard = () => board;
+    const getShips = () => ships;
 
     const placeShip = (name, start, length, orientation) => {
         let boardCopy = JSON.parse(JSON.stringify(board));
@@ -67,7 +68,7 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
     };
 
     //check can safely remove board
-    return { board, getBoard, placeShip, recieveAttack, allSunk };
+    return { getBoard, getShips, placeShip, recieveAttack, allSunk };
 };
 
 export default Gameboard;

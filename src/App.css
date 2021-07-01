@@ -3,36 +3,35 @@
 }
 
 #game {
-  display: grid;
-  grid-template: auto / 1fr 1fr;
-  /* display: flex;
-  justify-content: space-evenly; */
+  display: flex;
+  justify-content: space-around;
 }
 
 #ship-container {
-  border: 1px solid;
   width: 100%;
-  max-width: 500px;
-  background-color: purple;
+  max-width: 510px;
+  height: 510px;
+  background-color: rgb(114, 209, 173);
+  overflow-y: scroll;
 }
 
 .ship-prop {
-  display: flex;
+  display: inline-block;
+  align-self: start;
   width: fit-content;
-  margin: 2rem;
+  margin: 1.5rem 1.5rem 0 1.5rem;
 }
 
 .ship-prop div {
+  display: inline-block;
   width: 50px;
   height: 50px;
-  background-color: beige;
+  background-color: pink;
   border: 1px solid grey;
 }
 
 
-.board-container {  
-  position: relative
-}
+.board-container { position: relative }
 
 .gameboard,
 .board-mask {
@@ -46,7 +45,6 @@
 
 .gameboard div,
 .board-mask div {
-  /* border: 1px solid yellow; */
   width: 50px;
   height: 50px;
   /* min-width: 50px;

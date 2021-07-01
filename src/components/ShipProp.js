@@ -34,12 +34,11 @@ const ShipProp = (props) => {
         }
         style={{
             opacity: isDragging ? 0.5 : 1,
-            flexDirection: (orientation === "vertical")? "column" : "row",
             cursor: 'move',
         }}
         >
             {
-                [...Array(length)].map((_, index) => <div key={index}/>)
+                [...Array(length)].map((_, index) => <div key={index} style={{display: (orientation === "vertical")? "block" : "inline-block"}}/>)
             }
         </div>
     )

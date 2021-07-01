@@ -13,52 +13,34 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 
 
 import Board from "./Board";
-import ShipProp from "./ShipProp";
 import ShipContainer from "./ShipContainer";
 import BoardMask from "./BoardMask";
 import Button from "./Button";
+import Menu from "./Menu";
 
-//Game sets up gameboards for player and compter, as well as checkState method. 
+//Game sets up gameboards for player and compter
 const Game = () => {
     //make computer board randomly select from randomly generated templates. 
-    let p1_gameboard = Gameboard(layout_2, {"ship": Ship(3)});
-    //we are setting up p2_gameboard, which makes us player 2. change this later
-    let p2_gameboard = Gameboard();
-    //create two players. one will be pickSquare, other random squares (vs computer);
-    
-    let p1 = Player(p2_gameboard);
-    let p2 = Player(p1_gameboard);
+    let computer_gb = Gameboard(layout_2, {"ship": Ship(3)});
+    let player_gb = Gameboard();
 
-    const checkState = () => {
-        if (p1_gameboard.allSunk() === true) {
-            //return true false or nothing. (true player wins, false comp wins, nothing is nothing)
-            //use in display to trigger render of alert component?
-            console.log("You lost!");
-        } else if (p2_gameboard.allSunk() === true) {
-            console.log("You win!");
-        }
-    }
+    let computer = Player(player_gb);
+    let player = Player(computer_gb);
 
-    const playerChoice = (number) => {
-        console.log(number)
-        return p1.pickSquare(number);
-    };
+    const playerChoice = (number) =>  player.pickSquare(number);
+    const computerChoice = () => computer.pickRandomSquare();
 
-    const computerChoice = () => p2.pickRandomSquare();
-
-    return { p1_gameboard, p2_gameboard, playerChoice, computerChoice, checkState };
+    return { computer_gb, player_gb, playerChoice, computerChoice };
 };
 
 //Display for Battleship Game. 
 const Display = (props) => {
     let { game } = props;
 
-    let computerBoard = game.p1_gameboard.getBoard();
-    let [playerBoard, setPlayerBoard] = useState(game.p2_gameboard.getBoard());
+    let computerBoard = game.computer_gb.getBoard();
+    let [playerBoard, setPlayerBoard] = useState(game.player_gb.getBoard());
 
-    //hides computer's board underneath
     let [computerMask, setComputerMask] = useState(default_board);
-    //reveals what squares opponent has picked. 
     let [playerMask, setPlayerMask] = useState(default_board);
 
     //is the game ready? (player 2's gameboard set. )
@@ -66,25 +48,17 @@ const Display = (props) => {
     let [endGame, setEndGame] = useState(false);
 
     //ships to be setup with shipProp.
-    let [ships, setShips] = useState(default_ships);
+    let [ships, setShips] = useState(game.player_gb.getShips());
     
     
     //METHODS
-
-    const updateMask = (mask, setMask, position, value) => {
-        let temp = JSON.parse(JSON.stringify(mask));
-        let coords = getCoord(position);
-        temp[coords[0]][coords[1]] = value;
-        setMask(temp);
-    };
-
     //after player makes move (that changes board mask)
     useEffect(() => {
         if (!endGame){
             let random_choice = game.computerChoice();
-            updateMask(playerMask, setPlayerMask, random_choice, "u");
+            setTimeout(updateMask(playerMask, setPlayerMask, random_choice, "u"), 700);
 
-            if (game.p1_gameboard.allSunk()) {
+            if (game.player_gb.allSunk()) {
                 console.log("You lost");
                 setEndGame(true);
             }
@@ -97,7 +71,7 @@ const Display = (props) => {
         if (!endGame) {
             if (game.playerChoice(number)) {
                 updateMask(computerMask, setComputerMask, number, "u");
-                if (game.p2_gameboard.allSunk()) {
+                if (game.computer_gb.allSunk()) {
                     console.log("You won!");
                     setEndGame(true);
                 }
@@ -107,8 +81,15 @@ const Display = (props) => {
         };
     };
 
+    const updateMask = (mask, setMask, position, value) => {
+        let temp = JSON.parse(JSON.stringify(mask));
+        let coords = getCoord(position);
+        temp[coords[0]][coords[1]] = value;
+        setMask(temp);
+    };
+
+
     const updateShipContainer = (shipName) => {
-        console.log(shipName);
         setShips(Object.keys(ships)
         .filter(key => key !== shipName)
         .reduce((obj, key) => {
@@ -129,17 +110,33 @@ const Display = (props) => {
     }
 
     //reset ship container and board.
+    //should only deal with resetting player board
     function resetAll(setBoard, setShips) {
         return (()=> {
             //needs to also reset gameboard (TEmp fix)
-            game.p2_gameboard = Gameboard();
-            setBoard(default_board);
-            setShips(default_ships);
+            game.player_gb = Gameboard();
+            setBoard(game.player_gb.getBoard());
+            setShips(game.player_gb.getShips());
         })
+    }
+    //seperate function for resetting computer board. 
+
+    function restartGame(){
+        //should reset player board and also generate new random computer board
+
+        setEndGame(false);
+        setGameReady(false);
+        resetAll(setPlayerBoard, setShips)();
     }
 
     return (
         <DndProvider backend={HTML5Backend}>
+
+            {endGame &&
+            <Menu restartFn={restartGame}/>
+            }
+
+            {/* instead of visible, maybe have disabled. put these buttons on a seperate pop up menu */}
             <Button name="Reset" fn={resetAll(setPlayerBoard, setShips)} visible={!gameReady}/>
             <Button name="Start Game" fn={() => setGameReady(true)} visible={!gameReady && Object.keys(ships).length === 0}/>
             
@@ -164,7 +161,7 @@ const Display = (props) => {
                     }
                     <Board 
                     board={playerBoard}
-                    update={updateBoardDisplay(game.p2_gameboard, setPlayerBoard)}
+                    update={updateBoardDisplay(game.player_gb, setPlayerBoard)}
                     />
                 </div>
             </div>
@@ -173,18 +170,3 @@ const Display = (props) => {
 };
 
 export { Game, Display };
-
-//seperate board container? 
-
-
-{/* <div className="board-container">
-                    {drawBoardMask(computerMask, true)}
-                    {drawBoard(computerBoard)}
-                </div>
-                
-                <div className="board-container">
-                    {drawBoardMask(playerMask, false)}
-                    {drawBoard(playerBoard)}
-                </div>
- */}
-

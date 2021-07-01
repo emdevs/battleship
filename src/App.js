@@ -16,7 +16,6 @@ const App = (props) => {
   return (
     <div className="App">
       <h1>Battleship!</h1>
-      <p>Rules and all that. </p>
       <Display game={game}/>
     </div>
   );
