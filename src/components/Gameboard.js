@@ -57,18 +57,21 @@ const Gameboard = (layout=default_board, allShips=default_ships) => {
         }
     }
 
-    const allSunk = () => {
-        //check the ships hash. if each ship reports sunk, then all sunk. 
+    //maybe a function to count remaining ships? 
+    const remainingShips = () => {
+        let counter = 0;
         for (var shipName in ships) {
-            if (!(ships[shipName].isSunk())) {
-                return false;
+            if (!ships[shipName].isSunk()) {
+                counter += 1;
             }
         }
-        return true;
-    };
+        return counter;
+    }
+
+    const allSunk = () => remainingShips() === 0;
 
     //check can safely remove board
-    return { getBoard, getShips, placeShip, recieveAttack, allSunk };
+    return { getBoard, getShips, placeShip, remainingShips, recieveAttack, allSunk };
 };
 
 export default Gameboard;

@@ -107,6 +107,40 @@ describe("recieveAttack function works", () => {
     })
 });
 
+describe("remainingShips function works", () => {
+    let gb = Gameboard(board_2, {ds_1: Ship(2)});
+
+    test("1 ship remains", () => {
+        expect(gb.remainingShips()).toBe(1);
+    })
+
+    test("1 ship remains", () => {
+        gb.recieveAttack(0);
+        expect(gb.remainingShips()).toBe(1);
+    })
+
+    test("No ship remains", () => {
+        gb.recieveAttack(1);
+        expect(gb.remainingShips()).toBe(0);
+    })
+});
+
+describe("remainingShips function works", () => {
+    let gb = Gameboard(board_1, {three: Ship(3), two: Ship(2), one: Ship(1)});
+
+    test("3 ships remain", () => {
+        expect(gb.remainingShips()).toBe(3);
+    })
+
+    test("2 ships remain", () => {
+        gb.recieveAttack(6);
+        gb.recieveAttack(7);
+        gb.recieveAttack(8);
+        expect(gb.remainingShips()).toBe(2);
+    })
+})
+
+
 //test if all ships sunk correctly. 
 describe("allSunk function works correctly", () => {
     let gb = Gameboard(board_2, {ds_1: Ship(2)});
